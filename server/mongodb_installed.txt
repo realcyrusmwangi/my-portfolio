@@ -1,0 +1,7 @@
+✅ Once you install MongoDB (locally or Atlas), you can:
+
+Uncomment the mongoose.connect(...)
+
+Remove the fallback app.listen()
+
+Then your server will connect to MongoDB before it starts listening.
