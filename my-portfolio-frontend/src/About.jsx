@@ -1,17 +1,24 @@
-function About() {
+// src/About.jsx
+
+import React from 'react';
+
+const About = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
-      <h1 className="text-4xl md:text-5xl font-bold mb-6 text-indigo-600 text-center">
+    <section
+      id="about"
+      className="min-h-screen flex flex-col justify-center items-center text-center px-6 bg-white"
+    >
+      <h2 className="text-3xl md:text-5xl font-bold text-blue-800 mb-6">
         About Me
-      </h1>
-      <p className="text-lg md:text-xl leading-relaxed text-gray-700">
-        Hi! I’m Cyrus, a passionate developer building modern web applications.
-        I love creating clean, user-friendly experiences and solving real-world
-        problems through code. This portfolio showcases my projects, skills, and
-        the awesome people I’ve worked with.
+      </h2>
+      <p className="text-lg text-gray-700 max-w-3xl leading-relaxed">
+        I'm Cyrus Mwangi, a versatile IT professional with over 5 years of experience in application support, system implementation, and client training. I specialize in Oracle, PHP development, system integrations, and low-code automation.
+        <br /><br />
+        I've worked with government systems, private clients, and currently contribute to HR, payroll, and attendance system rollouts. I enjoy solving real-world tech problems and building tools that make work easier.
       </p>
-    </div>
+    </section>
   );
-}
+};
 
 export default About;
+

@@ -1,33 +1,39 @@
-function Skills() {
-  const skills = [
-    { name: 'PHP', level: 90 },
-    { name: 'Node.js', level: 85 },
-    { name: 'React', level: 80 },
-    { name: 'Oracle DB', level: 75 },
-    { name: 'System Implementation', level: 95 },
-  ];
+// src/Skills.jsx
 
+import React from 'react';
+
+const skills = [
+  'PHP & MySQL',
+  'Oracle Reports Developer',
+  'System Implementation',
+  'Technical Support',
+  'Power Automate',
+  'Tailwind CSS',
+  'JavaScript & React',
+  'Data Migration & Reconciliation',
+];
+
+const Skills = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-4xl font-bold mb-8 text-center text-blue-600">My Skills</h1>
-      <div className="space-y-6">
-        {skills.map((skill) => (
-          <div key={skill.name}>
-            <div className="flex justify-between mb-1">
-              <span className="text-lg font-medium text-gray-800">{skill.name}</span>
-              <span className="text-sm font-medium text-gray-600">{skill.level}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-4">
-              <div
-                className="bg-blue-600 h-4 rounded-full"
-                style={{ width: `${skill.level}%` }}
-              ></div>
-            </div>
+    <section
+      id="skills"
+      className="min-h-screen px-6 py-12 bg-white text-center"
+    >
+      <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-10">
+        Skills
+      </h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+        {skills.map((skill, index) => (
+          <div
+            key={index}
+            className="bg-blue-100 text-blue-800 font-medium py-3 px-4 rounded-xl shadow hover:bg-blue-200 transition"
+          >
+            {skill}
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
-}
+};
 
 export default Skills;

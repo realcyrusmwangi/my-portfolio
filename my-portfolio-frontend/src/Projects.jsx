@@ -1,39 +1,49 @@
-function Projects() {
-  const projects = [
-    {
-      id: 1,
-      title: 'Task Tracker App',
-      description: 'A simple web app to track tasks, deadlines, and progress. Built with React and Node.js.',
-      link: '#'
-    },
-    {
-      id: 2,
-      title: 'Custom CRM System',
-      description: 'A customer relationship management tool to help businesses manage leads and sales pipelines.',
-      link: '#'
-    },
-    {
-      id: 3,
-      title: 'Performance Dashboard',
-      description: 'A dashboard to visualize system performance metrics with real-time data.',
-      link: '#'
-    },
-  ];
+// src/Projects.jsx
 
+import React from 'react';
+
+const projects = [
+  {
+    title: 'HR & Payroll System Implementation',
+    description:
+      'Handled end-to-end setup of HR & Payroll systems for government and private clients — including data migration, training, and payroll reconciliation.',
+  },
+  {
+    title: 'Task Tracker System (PHP + MySQL)',
+    description:
+      'A custom-built tool to manage support issues, track implementation progress, and organize technical tasks with user login and reporting.',
+  },
+  {
+    title: 'Oracle Reports Customization',
+    description:
+      'Modified .rdf and .jsp reports for a legacy Oracle HRMS system to add tax elements, compliance fields, and enhance PDF/Excel outputs.',
+  },
+];
+
+const Projects = () => {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-4xl font-bold mb-8 text-center text-blue-600">My Projects</h1>
-      <div className="grid gap-6 md:grid-cols-2">
-        {projects.map((project) => (
-          <div key={project.id} className="bg-white border border-gray-200 rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300">
-            <h2 className="text-2xl font-semibold mb-2">{project.title}</h2>
-            <p className="text-gray-700 mb-4">{project.description}</p>
-            <a href={project.link} className="text-blue-600 hover:underline">View Project</a>
+    <section
+      id="projects"
+      className="min-h-screen px-6 py-12 bg-gray-100 text-center"
+    >
+      <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-10">
+        Projects
+      </h2>
+      <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {projects.map((project, index) => (
+          <div
+            key={index}
+            className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
+          >
+            <h3 className="text-xl font-semibold text-blue-700 mb-2">
+              {project.title}
+            </h3>
+            <p className="text-gray-600 text-base">{project.description}</p>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
-}
+};
 
 export default Projects;
