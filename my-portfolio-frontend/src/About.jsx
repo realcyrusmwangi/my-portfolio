@@ -12,9 +12,11 @@ const About = () => {
         About Me
       </h2>
       <p className="text-lg text-gray-700 max-w-3xl leading-relaxed">
-        I'm Cyrus Mwangi, a versatile IT professional with over 5 years of experience in application support, system implementation, and client training. I specialize in Oracle, PHP development, system integrations, and low-code automation.
+        I'm Cyrus Mwangi, an application Support Engineer with over six years of experience in IT support, enterprise application implementation, and database administration—particularly in financial, HRMS, and ERP environments. Proficient in supporting and configuring scalable systems such as Oracle Forms & Reports, BIRT, and ERP/payroll platforms.
         <br /><br />
-        I've worked with government systems, private clients, and currently contribute to HR, payroll, and attendance system rollouts. I enjoy solving real-world tech problems and building tools that make work easier.
+        Skilled in resolving application issues, documenting system configurations, and delivering user training and technical manuals. Adept at system optimization, report development, and ensuring minimal downtime for critical business applications.
+        <br /><br />
+        Strong communicator with a proven track record of aligning IT solutions with dynamic business requirements through collaboration with cross-functional teams.
       </p>
     </section>
   );
