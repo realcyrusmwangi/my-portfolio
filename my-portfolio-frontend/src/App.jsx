@@ -6,7 +6,7 @@ import About from './About';
 import Projects from './Projects';
 import Services from './services';
 import Skills from './Skills';
-import FunFacts from './Funfacts';
+import FunFacts from './FunFacts';
 import Contact from './Contact';
 import Testimonials from './Testimonials';
 import Navbar from './Navbar';
