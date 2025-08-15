@@ -6,6 +6,7 @@ import About from './About';
 import Projects from './Projects';
 import Services from './services';
 import Skills from './Skills';
+import FunFacts from './funfacts';
 import Contact from './Contact';
 import Testimonials from './Testimonials';
 import Navbar from './Navbar';
@@ -20,10 +21,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/services" element={<Services />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/funfacts" element={<FunFacts />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>

@@ -2,17 +2,19 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  FaHome, FaUserTie, FaCode, FaHandshake, FaTools, 
-  FaComments, FaEnvelope, FaGithub, FaLinkedin, FaTwitter 
+  FaHome, FaUserTie, FaTools, FaComments, 
+  FaHandshake, FaCode, FaSmile, FaEnvelope,
+  FaGithub, FaLinkedin, FaTwitter 
 } from "react-icons/fa";
 
 const LINKS = [
   { to: "/", label: "Home", icon: <FaHome className="mr-2" /> },
   { to: "/about", label: "About", icon: <FaUserTie className="mr-2" /> },
-  { to: "/projects", label: "Projects", icon: <FaCode className="mr-2" /> },
-  { to: "/services", label: "Services", icon: <FaHandshake className="mr-2" /> }, // New Services link
   { to: "/skills", label: "Skills", icon: <FaTools className="mr-2" /> },
   { to: "/testimonials", label: "Testimonials", icon: <FaComments className="mr-2" /> },
+  { to: "/services", label: "Services", icon: <FaHandshake className="mr-2" /> },
+  { to: "/projects", label: "Projects", icon: <FaCode className="mr-2" /> },
+  { to: "/funfacts", label: "FunFacts", icon: <FaSmile className="mr-2" /> },
   { to: "/contact", label: "Contact", icon: <FaEnvelope className="mr-2" /> },
 ];
 

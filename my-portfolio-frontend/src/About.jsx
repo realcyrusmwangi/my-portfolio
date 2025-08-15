@@ -50,21 +50,21 @@ export default function About() {
 
   const timeline = [
     {
-      year: "2021-Present",
-      role: "Senior IT Solutions Specialist",
-      company: "Tech Innovations Ltd",
+      year: "2025-Present",
+      role: " Software Implementation Engineer",
+      company: "Endeavour Africa Ltd",
       description: "Leading enterprise system implementations and managing technical teams"
     },
     {
-      year: "2018-2021",
-      role: "Systems Administrator",
-      company: "Global Business Solutions",
-      description: "Managed network infrastructure and ERP system upgrades"
+      year: "2018-2025",
+      role: "Application Support & System Implementer",
+      company: "Software Technologies Limited",
+      description: "Supported the implementation and maintenance of ERP modules and HRMS systems for clients in the financial and government sectors."
     },
     {
-      year: "2016-2018",
-      role: "IT Support Engineer",
-      company: "Digital Frontiers Inc",
+      year: "2016-2016",
+      role: "IT and Network Support intern",
+      company: "The Ministry of Lands and Physical planning",
       description: "Provided technical support and system maintenance"
     }
   ];
@@ -172,7 +172,7 @@ export default function About() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8, duration: 0.6 }}
             >
-              I'm an adaptable IT professional with over five years of experience delivering innovative technology solutions. 
+              I'm an adaptable IT professional with over 7 years of experience delivering innovative technology solutions. 
               My expertise bridges technical implementation and business objectives, ensuring systems not only function 
               flawlessly but drive tangible organizational value.
             </motion.p>
