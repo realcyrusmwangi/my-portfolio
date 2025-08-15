@@ -265,7 +265,7 @@ export default function About() {
               Get In Touch
             </Link>
             <a
-              href="/cv/Cyrus_Mwangi_CV.pdf"
+              href="/cv/Cyrus_Mwangi_CV_NOCV.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-lg shadow-lg hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105"
