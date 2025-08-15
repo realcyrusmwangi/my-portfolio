@@ -16,3 +16,8 @@ html {
 #contact {
   scroll-margin-top: 80px; /* Adjust based on your navbar height */
 }
+
+@keyframes backgroundZoom {
+  0%, 100% { background-size: 100%; }
+  50% { background-size: 105%; }
+}
