@@ -21,3 +21,7 @@ html {
   0%, 100% { background-size: 100%; }
   50% { background-size: 105%; }
 }
+
+html {
+  scroll-behavior: smooth;
+}

@@ -72,7 +72,7 @@ export default function About() {
   return (
     <motion.section
       id="about"
-      className="relative min-h-screen py-24"
+      className="relative py-24"
       style={{
         backgroundImage: "url('/images/about-bg-enhanced.jpg')",
         backgroundSize: "cover",

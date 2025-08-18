@@ -82,7 +82,7 @@ function Contact() {
     <motion.section
       className="min-h-screen py-16 px-6 relative overflow-hidden"
       style={{
-        backgroundImage: "url('/images/home-bg.jpg')",
+        backgroundImage: "url('/images/projects-bg.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

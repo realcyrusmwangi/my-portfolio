@@ -14,7 +14,7 @@ const LINKS = [
   { to: "/testimonials", label: "Testimonials", icon: <FaComments className="mr-2" /> },
   { to: "/services", label: "Services", icon: <FaHandshake className="mr-2" /> },
   { to: "/projects", label: "Projects", icon: <FaCode className="mr-2" /> },
-  { to: "/funfacts", label: "FunFacts", icon: <FaSmile className="mr-2" /> },
+ /* { to: "/funfacts", label: "FunFacts", icon: <FaSmile className="mr-2" /> },*/
   { to: "/contact", label: "Contact", icon: <FaEnvelope className="mr-2" /> },
 ];
 
@@ -43,29 +43,35 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-50 ${scrolled ? "bg-white/95 backdrop-blur-md shadow-lg" : "bg-white/80 backdrop-blur-sm shadow-sm"}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-800" 
+          : "bg-gray-900/90 backdrop-blur-sm"
+      }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        {/* Brand Logo */}
+        {/* Brand Logo - Stretched to the left */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center"
+          className="flex items-center flex-1"
         >
           <NavLink 
             to="/" 
-            className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent tracking-tight flex items-center"
+            className="text-2xl font-extrabold text-white tracking-tight flex items-center"
           >
-            <span className="hidden sm:inline">Cyrus</span>
-            <span className="sm:hidden">CM</span>
+            <span className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white px-3 py-1 rounded-md mr-2">
+              CM
+            </span>
+            <span className="hidden sm:inline">Cyrus Mwangi</span>
           </NavLink>
         </motion.div>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center space-x-1">
+        {/* Desktop Navigation - Stretched to the right */}
+        <div className="hidden lg:flex items-center justify-end flex-1 space-x-1">
           {LINKS.map((link) => (
             <NavLink
               key={link.to}
@@ -73,7 +79,11 @@ export default function Navbar() {
               end={link.to === "/"}
               className={({ isActive }) => `
                 relative px-4 py-2 text-lg font-medium transition-all duration-300
-                ${isActive ? "text-indigo-600" : "text-gray-700 hover:text-indigo-500"}
+                ${
+                  isActive 
+                    ? "text-white font-semibold" 
+                    : "text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg"
+                }
               `}
             >
               {({ isActive }) => (
@@ -85,7 +95,7 @@ export default function Navbar() {
                   {isActive && (
                     <motion.div
                       layoutId="navIndicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 to-blue-500"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
@@ -95,15 +105,15 @@ export default function Navbar() {
           ))}
 
           {/* Social Links */}
-          <div className="ml-6 flex items-center space-x-4 border-l border-gray-200 pl-6">
+          <div className="ml-6 flex items-center space-x-4 border-l border-gray-700 pl-6">
             {SOCIAL_LINKS.map((social, index) => (
               <motion.a
                 key={index}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-indigo-600 text-xl"
-                whileHover={{ y: -2 }}
+                className="text-gray-400 hover:text-white text-xl"
+                whileHover={{ y: -2, scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 aria-label={social.name}
               >
@@ -123,11 +133,11 @@ export default function Navbar() {
           whileTap={{ scale: 0.9 }}
         >
           {open ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           )}
@@ -142,7 +152,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden overflow-hidden bg-white/95 backdrop-blur-md shadow-xl"
+            className="lg:hidden overflow-hidden bg-gray-800/95 backdrop-blur-md shadow-xl"
           >
             <div className="px-6 py-4 space-y-4">
               {LINKS.map((link) => (
@@ -157,7 +167,11 @@ export default function Navbar() {
                     end={link.to === "/"}
                     className={({ isActive }) => `
                       flex items-center px-4 py-3 text-lg font-medium rounded-lg transition-all
-                      ${isActive ? "bg-indigo-50 text-indigo-600" : "text-gray-700 hover:bg-gray-100"}
+                      ${
+                        isActive 
+                          ? "bg-gray-700/50 text-white border-l-4 border-indigo-500" 
+                          : "text-gray-300 hover:bg-gray-700/30 hover:text-white"
+                      }
                     `}
                   >
                     {link.icon}
@@ -166,15 +180,15 @@ export default function Navbar() {
                 </motion.div>
               ))}
 
-              <div className="flex justify-center space-x-6 pt-4 border-t border-gray-100 mt-4">
+              <div className="flex justify-center space-x-6 pt-4 border-t border-gray-700 mt-4">
                 {SOCIAL_LINKS.map((social, index) => (
                   <motion.a
                     key={index}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-indigo-600 text-xl p-2"
-                    whileHover={{ y: -3 }}
+                    className="text-gray-400 hover:text-white text-xl p-2"
+                    whileHover={{ y: -3, scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
