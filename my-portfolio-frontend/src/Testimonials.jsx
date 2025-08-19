@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaQuoteLeft, FaStar, FaHeart, FaRocket, FaMagic } from 'react-icons/fa';
+import { FaQuoteLeft, FaStar, FaHeart, FaRocket, FaMagic, FaTimes } from 'react-icons/fa';
 
 function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
@@ -20,50 +20,49 @@ function Testimonials() {
   }, []);
 
   const fetchTestimonials = async () => {
-  try {
-    const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`);
-    if (!res.ok) throw new Error('Failed to fetch testimonials');
-    
-    const data = await res.json();
-    const approvedTestimonials = data.filter(testimonial => testimonial.approved);
-    
-    const testimonialsWithAvatars = approvedTestimonials.map((testimonial, index) => {
-      // Detect gender from name for better avatar matching
-      const firstName = testimonial.name.split(' ')[0].toLowerCase();
-      const isLikelyFemale = firstName.endsWith('a') || 
-                            firstName.endsWith('e') || 
-                            firstName.endsWith('i') || 
-                            ['mary', 'sarah', 'lisa', 'anna', 'emma'].includes(firstName);
+    try {
+      const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`);
+      if (!res.ok) throw new Error('Failed to fetch testimonials');
       
-      const gender = isLikelyFemale ? 'women' : 'men';
-      const avatarId = Math.floor(Math.random() * 50) + 1; // Random ID between 1-50
+      const data = await res.json();
+      const approvedTestimonials = data.filter(testimonial => testimonial.approved);
       
-      return {
-        ...testimonial,
-        avatar: testimonial.avatar || `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`,
-        rating: testimonial.rating || 5
-      };
-    });
+      const testimonialsWithAvatars = approvedTestimonials.map((testimonial, index) => {
+        const firstName = testimonial.name.split(' ')[0].toLowerCase();
+        const isLikelyFemale = firstName.endsWith('a') || 
+                              firstName.endsWith('e') || 
+                              firstName.endsWith('i') || 
+                              ['mary', 'sarah', 'lisa', 'anna', 'emma'].includes(firstName);
+        
+        const gender = isLikelyFemale ? 'women' : 'men';
+        const avatarId = Math.floor(Math.random() * 50) + 1;
+        
+        return {
+          ...testimonial,
+          avatar: testimonial.avatar || `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`,
+          rating: testimonial.rating || 5
+        };
+      });
 
-    setTestimonials(testimonialsWithAvatars);
-    
-  } catch (error) {
-    console.error("Error fetching testimonials:", error);
-    setTestimonials([
-      {
-        _id: 'sample1',
-        name: 'Sarah Johnson',
-        position: 'CEO at TechSavilions Inc.',
-        message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
-        rating: 5,
-        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-        approved: true
-      }
-    ]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setTestimonials(testimonialsWithAvatars);
+      
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+      setTestimonials([
+        {
+          _id: 'sample1',
+          name: 'Sarah Johnson',
+          position: 'CEO at TechSavilions Inc.',
+          message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+          approved: true
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,7 +73,7 @@ function Testimonials() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/testimonials', {
+      const res = await fetch('https://portfolio-backend-3zx5.onrender.com/api/testimonials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -85,7 +84,10 @@ function Testimonials() {
       if (res.ok) {
         setSubmitStatus('success');
         setFormData({ name: '', position: '', message: '', rating: 5 });
-        setShowForm(false);
+        setTimeout(() => {
+          setShowForm(false);
+          setSubmitStatus(null);
+        }, 2000);
       } else {
         throw new Error(data.message || 'Submission failed');
       }
@@ -94,7 +96,6 @@ function Testimonials() {
       console.error('Submission error:', error);
     } finally {
       setIsSubmitting(false);
-      setTimeout(() => setSubmitStatus(null), 5000);
     }
   };
 
@@ -107,149 +108,34 @@ function Testimonials() {
   }
 
   return (
-    <motion.section 
-      id="testimonials" 
-      className="min-h-screen py-20 px-6 relative overflow-hidden" 
-      style={{ 
-        backgroundImage: "url('/images/testimonials-bg.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed"
-      }} 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      transition={{ duration: 0.8 }}
-    >
-      
-      {/* Dark overlay for better text readability */}
-      <motion.div 
-        className="absolute inset-0 bg-black/60"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      />
-      
-      {/* Additional gradient overlay for aesthetics */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-cyan-900/20" />
-
-      {/* Floating Elements */}
-      {[...Array(12)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute text-cyan-400/20 text-4xl"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            rotate: [0, 360],
-            y: [0, Math.random() * 100 - 50],
-            x: [0, Math.random() * 40 - 20],
-          }}
-          transition={{
-            duration: Math.random() * 20 + 15,
-            repeat: Infinity,
-            repeatType: "loop",
-            ease: "linear"
-          }}
+    <>
+      {/* Modal Overlay */}
+      {showForm && (
+        <motion.div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowForm(false)}
         >
-          {[FaHeart, FaRocket, FaMagic, FaStar][i % 4]()}
-        </motion.div>
-      ))}
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        
-        {/* Header Section */}
-        <motion.div className="text-center mb-16" initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <motion.div className="inline-block mb-6" whileHover={{ scale: 1.1 }} transition={{ type: "spring", stiffness: 300 }}>
-            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 rounded-2xl shadow-2xl shadow-cyan-500/25">
-              <FaQuoteLeft className="text-4xl text-white" />
-            </div>
-          </motion.div>
-          
-          <motion.h2 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}>
-            Voices of <span className="text-white">Trust</span>
-          </motion.h2>
-          
-          <motion.p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}>
-            Discover what clients and colleagues say about their experience working with me
-          </motion.p>
-
-          <motion.button 
-            onClick={() => setShowForm(!showForm)}
-            className="group relative overflow-hidden bg-gradient-to-r from-cyan-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-2xl shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-all duration-300"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+          <motion.div 
+            className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl shadow-2xl border border-cyan-400/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <span className="relative z-10 flex items-center gap-2">
-              {showForm ? '✗ Close' : '⭐ Share Your Story'}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </motion.button>
-        </motion.div>
-
-        {/* Testimonials Grid */}
-        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.8 }}>
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial._id}
-              className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 hover:border-cyan-400/30 transition-all duration-500 p-8"
-              initial={{ opacity: 0, y: 60, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.2 + index * 0.15, duration: 0.7 }}
-              whileHover={{ y: -12, scale: 1.02, rotate: index % 2 ? -0.5 : 0.5 }}
+            {/* Close Button */}
+            <button
+              onClick={() => setShowForm(false)}
+              className="absolute top-4 right-4 text-cyan-200 hover:text-white transition-colors z-10"
             >
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              <div className="relative z-10">
-                {/* Rating Stars */}
-                <div className="flex mb-6">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar 
-                      key={i}
-                      className={`text-xl ${i < testimonial.rating ? 'text-yellow-400 drop-shadow-sm' : 'text-gray-600'}`}
-                    />
-                  ))}
-                </div>
-                
-                {/* Quote Icon */}
-                <FaQuoteLeft className="text-cyan-400/40 text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300" />
-                
-                {/* Testimonial Message */}
-                <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.2 }}>
-                  "{testimonial.message}"
-                </motion.p>
-                
-                {/* Author Info */}
-                <div className="flex items-center">
-                  <motion.img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-16 h-16 rounded-full object-cover border-3 border-cyan-400/50 shadow-lg mr-4 group-hover:border-cyan-400 transition-all duration-300"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                  />
-                  <div>
-                    <motion.h4 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
-                      {testimonial.name}
-                    </motion.h4>
-                    <motion.p className="text-cyan-200 text-sm font-medium group-hover:text-cyan-100 transition-colors duration-300">
-                      {testimonial.position}
-                    </motion.p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              <FaTimes className="text-2xl" />
+            </button>
 
-        {/* Testimonial Form */}
-        {showForm && (
-          <motion.div id="testimonial-form" className="relative mb-20" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600/20 to-blue-700/20 rounded-3xl blur-xl" />
-            <div className="relative bg-gradient-to-br from-gray-900/80 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-cyan-400/20 p-10">
+            <div className="p-8">
               <div className="text-center mb-8">
-                <motion.h3 className="text-3xl font-bold text-white mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                <motion.h3 className="text-3xl font-bold text-white mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   Share Your <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Experience</span>
                 </motion.h3>
                 <p className="text-blue-200">Your feedback helps me grow and improve</p>
@@ -314,18 +200,156 @@ function Testimonials() {
               </form>
             </div>
           </motion.div>
-        )}
-
-        {/* Footer Note */}
-        <motion.div className="text-center text-cyan-300/70 text-sm max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-          <p className="flex items-center justify-center gap-2">
-            <FaHeart className="text-red-400" />
-            Every testimonial is manually reviewed to maintain quality and authenticity
-          </p>
         </motion.div>
+      )}
 
-      </div>
-    </motion.section>
+      {/* Main Content */}
+      <motion.section 
+        id="testimonials" 
+        className="min-h-screen py-20 px-6 relative overflow-hidden" 
+        style={{ 
+          backgroundImage: "url('/images/testimonials-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed"
+        }} 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        transition={{ duration: 0.8 }}
+      >
+        
+        {/* Dark overlay for better text readability */}
+        <motion.div 
+          className="absolute inset-0 bg-black/60"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        />
+        
+        {/* Additional gradient overlay for aesthetics */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-cyan-900/20" />
+
+        {/* Floating Elements */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-cyan-400/20 text-4xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              rotate: [0, 360],
+              y: [0, Math.random() * 100 - 50],
+              x: [0, Math.random() * 40 - 20],
+            }}
+            transition={{
+              duration: Math.random() * 20 + 15,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "linear"
+            }}
+          >
+            {[FaHeart, FaRocket, FaMagic, FaStar][i % 4]()}
+          </motion.div>
+        ))}
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          
+          {/* Header Section */}
+          <motion.div className="text-center mb-16" initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+            <motion.div className="inline-block mb-6" whileHover={{ scale: 1.1 }} transition={{ type: "spring", stiffness: 300 }}>
+              <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 rounded-2xl shadow-2xl shadow-cyan-500/25">
+                <FaQuoteLeft className="text-4xl text-white" />
+              </div>
+            </motion.div>
+            
+            <motion.h2 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}>
+              Voices of <span className="text-white">Trust</span>
+            </motion.h2>
+            
+            <motion.p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}>
+              Discover what clients and colleagues say about their experience working with me
+            </motion.p>
+
+            <motion.button 
+              onClick={() => setShowForm(true)}
+              className="group relative overflow-hidden bg-gradient-to-r from-cyan-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-2xl shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-all duration-300"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                ⭐ Share Your Story
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </motion.button>
+          </motion.div>
+
+          {/* Testimonials Grid */}
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.8 }}>
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={testimonial._id}
+                className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 hover:border-cyan-400/30 transition-all duration-500 p-8"
+                initial={{ opacity: 0, y: 60, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.2 + index * 0.15, duration: 0.7 }}
+                whileHover={{ y: -12, scale: 1.02, rotate: index % 2 ? -0.5 : 0.5 }}
+              >
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  {/* Rating Stars */}
+                  <div className="flex mb-6">
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar 
+                        key={i}
+                        className={`text-xl ${i < testimonial.rating ? 'text-yellow-400 drop-shadow-sm' : 'text-gray-600'}`}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Quote Icon */}
+                  <FaQuoteLeft className="text-cyan-400/40 text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300" />
+                  
+                  {/* Testimonial Message */}
+                  <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.2 }}>
+                    "{testimonial.message}"
+                  </motion.p>
+                  
+                  {/* Author Info */}
+                  <div className="flex items-center">
+                    <motion.img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="w-16 h-16 rounded-full object-cover border-3 border-cyan-400/50 shadow-lg mr-4 group-hover:border-cyan-400 transition-all duration-300"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    />
+                    <div>
+                      <motion.h4 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
+                        {testimonial.name}
+                      </motion.h4>
+                      <motion.p className="text-cyan-200 text-sm font-medium group-hover:text-cyan-100 transition-colors duration-300">
+                        {testimonial.position}
+                      </motion.p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Footer Note */}
+          <motion.div className="text-center text-cyan-300/70 text-sm max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+            <p className="flex items-center justify-center gap-2">
+              <FaHeart className="text-red-400" />
+              Every testimonial is manually reviewed to maintain quality and authenticity
+            </p>
+          </motion.div>
+        </div>
+      </motion.section>
+    </>
   );
 }
 
