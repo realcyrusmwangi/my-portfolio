@@ -21,7 +21,7 @@ function Testimonials() {
 
   const fetchTestimonials = async () => {
   try {
-    const res = await fetch('http://localhost:5000/api/testimonials');
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/testimonials`);
     if (!res.ok) throw new Error('Failed to fetch testimonials');
     
     const data = await res.json();
