@@ -21,7 +21,7 @@ function Testimonials() {
 
   const fetchTestimonials = async () => {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/testimonials`);
+    const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`);
     if (!res.ok) throw new Error('Failed to fetch testimonials');
     
     const data = await res.json();

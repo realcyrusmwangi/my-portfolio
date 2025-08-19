@@ -14,7 +14,12 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+/*app.use(cors());*/
+
+app.use(cors({
+  origin: ['https://my-portfolio-lt59.onrender.com', 'http://localhost:5173'],
+  credentials: true
+}));
 
 // Routes
 app.use('/api/testimonials', testimonialRoutes);

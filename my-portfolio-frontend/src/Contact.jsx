@@ -52,7 +52,7 @@ const handleSubmit = async (e) => {
   setIsSubmitting(true);
   
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/contact`, {  // Changed to your local API endpoint
+    const response = await fetch('https://portfolio-backend-3zx5.onrender.com/api/contact', {  // Changed to your local API endpoint
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
