@@ -16,13 +16,13 @@ function Contact() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  /*const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
       // Replace with your actual API endpoint
-      const response = await fetch('https://your-api-endpoint.com/send-message', {
+      const response = await fetch('http://localhost:5173/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +43,41 @@ function Contact() {
       setIsSubmitting(false);
       setTimeout(() => setSubmitStatus(null), 5000);
     }
-  };
+  };*/
+
+
+// Only modified the handleSubmit function - everything else remains identical
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  
+  try {
+    const response = await fetch('http://localhost:5000/api/contact', {  // Changed to your local API endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();  // Added to parse JSON response
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to send message');
+    }
+
+    setSubmitStatus('success');
+    setFormData({ name: '', email: '', message: '' });
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    setSubmitStatus('error');
+    // Optional: Display the actual error message from backend
+    // alert(error.message); 
+  } finally {
+    setIsSubmitting(false);
+    setTimeout(() => setSubmitStatus(null), 5000);
+  }
+};
 
   const socialLinks = [
     {

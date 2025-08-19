@@ -6,12 +6,16 @@ const TestimonialSchema = new mongoose.Schema({
     required: true,
   },
   position: {
-    type: String, // e.g., job title
+    type: String,
     required: false,
   },
   message: {
     type: String,
     required: true,
+  },
+  approved: {
+    type: Boolean,
+    default: false, // New field: false by default, needs admin approval
   },
   createdAt: {
     type: Date,

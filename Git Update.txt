@@ -1,0 +1,38 @@
+1. Go to the folder
+cd C:\xampp\htdocs\my-portfolio
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2. Make sure the repo is ready (safe to run even if already initialized)
+
+git init
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+3. Stage everything
+
+git add .
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+4. Commit
+
+git commit -m "Update: push current local project"
+
+
+If it says “nothing to commit,” go to step 5.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+5 Push to GitHub
+
+git push origin main
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+6. If step 5 is rejected with “fetch first,” do this, then push again:
+
+git pull origin main --rebase
+git push origin main
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+7. If you want to replace what’s on GitHub with exactly what you have locally (overwrite):
+
+git push origin main --force
+
+
+That’s it—just follow 1 → 5 each time you’ve made changes. Use step 6 only if you get a rejection, and step 7 only when you intentionally want to overwrite the remote.	

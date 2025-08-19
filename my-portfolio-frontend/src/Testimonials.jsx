@@ -1,40 +1,9 @@
-// src/Testimonials.jsx
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaQuoteLeft, FaStar } from 'react-icons/fa';
+import { FaQuoteLeft, FaStar, FaHeart, FaRocket, FaMagic } from 'react-icons/fa';
 
 function Testimonials() {
-  const [testimonials, setTestimonials] = useState([
-    // Sample testimonials (will be mixed with fetched ones)
-    {
-      _id: 'sample1',
-      name: 'Sarah Johnson',
-      position: 'CTO at TechSolutions Inc.',
-      message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise and attention to detail saved us months of development time and significantly improved our payroll processing.',
-      rating: 5,
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-      approved: true
-    },
-    {
-      _id: 'sample2',
-      name: 'Michael Chen',
-      position: 'IT Director at Global Enterprises',
-      message: 'The system implementation led by Cyrus was flawless. His ability to understand complex business requirements and translate them into technical solutions is exceptional. We continue to rely on his expertise for ongoing support.',
-      rating: 5,
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      approved: true
-    },
-    {
-      _id: 'sample3',
-      name: 'Amina Bello',
-      position: 'Operations Manager at Africom',
-      message: 'Working with Cyrus on our database migration project was a game-changer. His technical skills combined with clear communication made what could have been a stressful process remarkably smooth and successful.',
-      rating: 4,
-      avatar: 'https://randomuser.me/api/portraits/women/63.jpg',
-      approved: true
-    }
-  ]);
-
+  const [testimonials, setTestimonials] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     position: '',
@@ -43,19 +12,58 @@ function Testimonials() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    // Fetch real testimonials from your API
-    fetch('http://localhost:5000/api/testimonials')
-      .then((res) => res.json())
-      .then((data) => {
-        // Combine with sample testimonials (in a real app, you'd only show approved ones)
-        setTestimonials(prev => [...data.filter(t => t.approved), ...prev]);
-      })
-      .catch(() => {
-        console.log("Using sample testimonials only");
-      });
+    fetchTestimonials();
   }, []);
+
+  const fetchTestimonials = async () => {
+  try {
+    const res = await fetch('http://localhost:5000/api/testimonials');
+    if (!res.ok) throw new Error('Failed to fetch testimonials');
+    
+    const data = await res.json();
+    const approvedTestimonials = data.filter(testimonial => testimonial.approved);
+    
+    const testimonialsWithAvatars = approvedTestimonials.map((testimonial, index) => {
+      // Detect gender from name for better avatar matching
+      const firstName = testimonial.name.split(' ')[0].toLowerCase();
+      const isLikelyFemale = firstName.endsWith('a') || 
+                            firstName.endsWith('e') || 
+                            firstName.endsWith('i') || 
+                            ['mary', 'sarah', 'lisa', 'anna', 'emma'].includes(firstName);
+      
+      const gender = isLikelyFemale ? 'women' : 'men';
+      const avatarId = Math.floor(Math.random() * 50) + 1; // Random ID between 1-50
+      
+      return {
+        ...testimonial,
+        avatar: testimonial.avatar || `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`,
+        rating: testimonial.rating || 5
+      };
+    });
+
+    setTestimonials(testimonialsWithAvatars);
+    
+  } catch (error) {
+    console.error("Error fetching testimonials:", error);
+    setTestimonials([
+      {
+        _id: 'sample1',
+        name: 'Sarah Johnson',
+        position: 'CEO at TechSavilions Inc.',
+        message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
+        rating: 5,
+        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+        approved: true
+      }
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -77,10 +85,9 @@ function Testimonials() {
       if (res.ok) {
         setSubmitStatus('success');
         setFormData({ name: '', position: '', message: '', rating: 5 });
-        // In a real app, you'd wait for admin approval before showing
-        // setTestimonials(prev => [data, ...prev]);
+        setShowForm(false);
       } else {
-        setSubmitStatus('error');
+        throw new Error(data.message || 'Submission failed');
       }
     } catch (error) {
       setSubmitStatus('error');
@@ -91,138 +98,145 @@ function Testimonials() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <motion.section className="min-h-screen flex items-center justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <div className="text-white text-xl animate-pulse">✨ Loading testimonials...</div>
+      </motion.section>
+    );
+  }
+
   return (
-    <motion.section
-      id="testimonials"
-      className="min-h-screen py-16 px-6 relative overflow-hidden"
-      style={{
+    <motion.section 
+      id="testimonials" 
+      className="min-h-screen py-20 px-6 relative overflow-hidden" 
+      style={{ 
         backgroundImage: "url('/images/testimonials-bg.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-      }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+        backgroundAttachment: "fixed"
+      }} 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
       transition={{ duration: 0.8 }}
     >
-      {/* Gradient overlay */}
+      
+      {/* Dark overlay for better text readability */}
       <motion.div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-purple-900/60"
+        className="absolute inset-0 bg-black/60"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       />
+      
+      {/* Additional gradient overlay for aesthetics */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-cyan-900/20" />
 
-      {/* Floating quote icons */}
-      {[...Array(6)].map((_, i) => (
+      {/* Floating Elements */}
+      {[...Array(12)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute text-white/10 text-6xl md:text-8xl"
+          className="absolute text-cyan-400/20 text-4xl"
           style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
           }}
           animate={{
-            rotate: [0, 5, 0],
-            y: [0, Math.random() * 40 - 20],
+            rotate: [0, 360],
+            y: [0, Math.random() * 100 - 50],
+            x: [0, Math.random() * 40 - 20],
           }}
           transition={{
-            duration: Math.random() * 15 + 10,
+            duration: Math.random() * 20 + 15,
             repeat: Infinity,
-            repeatType: "reverse",
+            repeatType: "loop",
+            ease: "linear"
           }}
         >
-          <FaQuoteLeft />
+          {[FaHeart, FaRocket, FaMagic, FaStar][i % 4]()}
         </motion.div>
       ))}
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <motion.h2
-            className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-200"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            Client <span className="text-white">Testimonials</span>
+        
+        {/* Header Section */}
+        <motion.div className="text-center mb-16" initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          <motion.div className="inline-block mb-6" whileHover={{ scale: 1.1 }} transition={{ type: "spring", stiffness: 300 }}>
+            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 rounded-2xl shadow-2xl shadow-cyan-500/25">
+              <FaQuoteLeft className="text-4xl text-white" />
+            </div>
+          </motion.div>
+          
+          <motion.h2 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}>
+            Voices of <span className="text-white">Trust</span>
           </motion.h2>
-          <motion.p
-            className="text-xl text-blue-100 max-w-3xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-          >
-            Hear what industry professionals say about working with me and the impact of our collaborations.
+          
+          <motion.p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}>
+            Discover what clients and colleagues say about their experience working with me
           </motion.p>
+
+          <motion.button 
+            onClick={() => setShowForm(!showForm)}
+            className="group relative overflow-hidden bg-gradient-to-r from-cyan-600 to-blue-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-2xl shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-all duration-300"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              {showForm ? '✗ Close' : '⭐ Share Your Story'}
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </motion.button>
         </motion.div>
 
         {/* Testimonials Grid */}
-        <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-        >
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.8 }}>
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial._id}
-              className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden hover:shadow-blue-500/20 transition-all duration-500 p-8"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
-              whileHover={{ y: -10 }}
+              className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 hover:border-cyan-400/30 transition-all duration-500 p-8"
+              initial={{ opacity: 0, y: 60, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.2 + index * 0.15, duration: 0.7 }}
+              whileHover={{ y: -12, scale: 1.02, rotate: index % 2 ? -0.5 : 0.5 }}
             >
-              <div className="flex mb-6">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar 
-                    key={i}
-                    className={`text-xl ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-600'}`}
+              {/* Glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative z-10">
+                {/* Rating Stars */}
+                <div className="flex mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar 
+                      key={i}
+                      className={`text-xl ${i < testimonial.rating ? 'text-yellow-400 drop-shadow-sm' : 'text-gray-600'}`}
+                    />
+                  ))}
+                </div>
+                
+                {/* Quote Icon */}
+                <FaQuoteLeft className="text-cyan-400/40 text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300" />
+                
+                {/* Testimonial Message */}
+                <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.2 }}>
+                  "{testimonial.message}"
+                </motion.p>
+                
+                {/* Author Info */}
+                <div className="flex items-center">
+                  <motion.img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-full object-cover border-3 border-cyan-400/50 shadow-lg mr-4 group-hover:border-cyan-400 transition-all duration-300"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
                   />
-                ))}
-              </div>
-              
-              <FaQuoteLeft className="text-blue-300/30 text-5xl mb-4" />
-              
-              <motion.p
-                className="text-lg text-blue-50 mb-8 italic relative z-10"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-              >
-                {testimonial.message}
-              </motion.p>
-              
-              <div className="flex items-center">
-                <motion.img
-                  src={testimonial.avatar}
-                  alt={testimonial.name}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-blue-400/50 mr-4"
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.7 + index * 0.1, duration: 0.5 }}
-                />
-                <div>
-                  <motion.h4
-                    className="text-xl font-semibold text-white"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
-                  >
-                    {testimonial.name}
-                  </motion.h4>
-                  <motion.p
-                    className="text-blue-200"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1, duration: 0.5 }}
-                  >
-                    {testimonial.position}
-                  </motion.p>
+                  <div>
+                    <motion.h4 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
+                      {testimonial.name}
+                    </motion.h4>
+                    <motion.p className="text-cyan-200 text-sm font-medium group-hover:text-cyan-100 transition-colors duration-300">
+                      {testimonial.position}
+                    </motion.p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -230,162 +244,86 @@ function Testimonials() {
         </motion.div>
 
         {/* Testimonial Form */}
-        <motion.div
-          className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-          whileHover={{ y: -5 }}
-        >
-          <div className="p-8">
-            <motion.h3
-              className="text-3xl font-bold text-center text-white mb-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.3, duration: 0.6 }}
-            >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-200">
-                Share Your Experience
-              </span>
-            </motion.h3>
-            
-            {submitStatus === 'success' && (
-              <motion.div 
-                className="mb-6 p-4 bg-green-500/20 text-green-100 rounded-lg"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                Thank you! Your testimonial has been submitted for review.
-              </motion.div>
-            )}
-            
-            {submitStatus === 'error' && (
-              <motion.div 
-                className="mb-6 p-4 bg-red-500/20 text-red-100 rounded-lg"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                There was an error submitting your testimonial. Please try again.
-              </motion.div>
-            )}
+        {showForm && (
+          <motion.div id="testimonial-form" className="relative mb-20" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600/20 to-blue-700/20 rounded-3xl blur-xl" />
+            <div className="relative bg-gradient-to-br from-gray-900/80 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-cyan-400/20 p-10">
+              <div className="text-center mb-8">
+                <motion.h3 className="text-3xl font-bold text-white mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                  Share Your <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Experience</span>
+                </motion.h3>
+                <p className="text-blue-200">Your feedback helps me grow and improve</p>
+              </div>
 
-            <form onSubmit={handleSubmit}>
-              <motion.div 
-                className="mb-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.4, duration: 0.6 }}
-              >
-                <label htmlFor="name" className="block text-blue-100 mb-2 font-medium">
-                  Your Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-              </motion.div>
+              {submitStatus === 'success' && (
+                <motion.div className="mb-6 p-4 bg-green-500/20 border border-green-400/30 rounded-xl text-green-100 text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                  ✅ Thank you! Your testimonial is awaiting approval.
+                </motion.div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <motion.div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl text-red-100 text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                  ❌ Please check your inputs and try again.
+                </motion.div>
+              )}
 
-              <motion.div 
-                className="mb-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.5, duration: 0.6 }}
-              >
-                <label htmlFor="position" className="block text-blue-100 mb-2 font-medium">
-                  Your Position
-                </label>
-                <input
-                  id="position"
-                  type="text"
-                  name="position"
-                  value={formData.position}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-              </motion.div>
-
-              <motion.div 
-                className="mb-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.6, duration: 0.6 }}
-              >
-                <label htmlFor="rating" className="block text-blue-100 mb-2 font-medium">
-                  Rating
-                </label>
-                <div className="flex space-x-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setFormData({...formData, rating: star})}
-                      className="text-2xl focus:outline-none"
-                    >
-                      <FaStar 
-                        className={star <= formData.rating ? 'text-yellow-400' : 'text-gray-500'}
-                      />
-                    </button>
-                  ))}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-cyan-100 mb-3 font-medium">Your Name</label>
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 bg-white/5 border border-cyan-400/20 rounded-xl text-white placeholder-cyan-200/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" placeholder="Enter your name" />
+                  </div>
+                  <div>
+                    <label className="block text-cyan-100 mb-3 font-medium">Your Position</label>
+                    <input type="text" name="position" value={formData.position} onChange={handleChange} required className="w-full px-4 py-3 bg-white/5 border border-cyan-400/20 rounded-xl text-white placeholder-cyan-200/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" placeholder="Your role or position" />
+                  </div>
                 </div>
-              </motion.div>
 
-              <motion.div 
-                className="mb-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.7, duration: 0.6 }}
-              >
-                <label htmlFor="message" className="block text-blue-100 mb-2 font-medium">
-                  Your Testimonial
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="5"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                ></textarea>
-              </motion.div>
+                <div>
+                  <label className="block text-cyan-100 mb-3 font-medium">Your Rating</label>
+                  <div className="flex space-x-2 justify-center">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button type="button" key={star} onClick={() => setFormData({...formData, rating: star})} className="text-2xl transition-transform hover:scale-125 focus:outline-none">
+                        <FaStar className={star <= formData.rating ? 'text-yellow-400 drop-shadow-sm' : 'text-gray-500'} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <motion.div
-                className="text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.8, duration: 0.6 }}
-              >
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`px-8 py-3 rounded-lg font-semibold text-white transition-all ${
-                    isSubmitting 
-                      ? 'bg-blue-400 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-lg'
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Submitting...
-                    </span>
-                  ) : (
-                    'Submit Testimonial'
-                  )}
-                </button>
-              </motion.div>
-            </form>
-          </div>
+                <div>
+                  <label className="block text-cyan-100 mb-3 font-medium">Your Testimonial</label>
+                  <textarea name="message" rows="4" value={formData.message} onChange={handleChange} required className="w-full px-4 py-3 bg-white/5 border border-cyan-400/20 rounded-xl text-white placeholder-cyan-200/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none" placeholder="Share your experience working with me..." />
+                </div>
+
+                <motion.button type="submit" disabled={isSubmitting} className="w-full group relative overflow-hidden bg-gradient-to-r from-cyan-600 to-blue-700 text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all duration-300" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <FaRocket className="text-lg" />
+                        Launch Your Testimonial
+                      </>
+                    )}
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </motion.button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Footer Note */}
+        <motion.div className="text-center text-cyan-300/70 text-sm max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+          <p className="flex items-center justify-center gap-2">
+            <FaHeart className="text-red-400" />
+            Every testimonial is manually reviewed to maintain quality and authenticity
+          </p>
         </motion.div>
+
       </div>
     </motion.section>
   );

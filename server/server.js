@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect("mongodb+srv://realcyrusmwangi:bdAY1GLxJKv4XIHD@cluster0.t1wbnlz.mongodb.net/myportfolio?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => {
     console.log('✅ MongoDB Atlas connected');
     app.listen(PORT, () => {

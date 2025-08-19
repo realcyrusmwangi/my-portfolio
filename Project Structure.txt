@@ -1,0 +1,59 @@
+my-portfolio
+├── .git/{/*too many folders inside*/}
+└── my-portfolio-frontend/
+│   ├── backup_frontend
+│   │   ├── index.css
+│   │   ├── postcss.config.js
+│   │   └── tailwind.config.js
+│   ├── node_modules/{/*too many folders inside*/}
+│   └── public/
+│   │   ├── cv/{/*CV inside*/}
+│   │   ├── images/{/*too many images inside*/}
+│   │   └── vite.svg
+│   └── src/
+│   │   └── assets/
+│   │   │   ├── cyrus.jpg
+│   │   │   └── react.svg
+│   │   └── components/
+│   │   │   ├── Home.jsx
+│   │   │   └── ScrollToTop.js
+│   │   ├── About.jsx
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── Contact.jsx
+│   │   ├── FunFact.jsx
+│   │   ├── Home.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── Projects.jsx
+│   │   ├── services.jsx
+│   │   ├── Skills.jsx
+│   │   ├── TestimonialForm.jsx
+│   │   └── Testimonial.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── postcss.config.cjs
+│   ├── README.md
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── node_modules/{/*too many folders inside*/}
+├── server/
+│   └──  controllers/
+│   │   └── contactController.js
+│   └──  models/
+│   │   ├── Message.js
+│   │   └── Testimonial.js
+│   ├── mode_modules/{/*too many folders inside*/}
+│   └──  routes/
+│   │   ├── contact.js
+│   │   └── testimonialRoutes.js
+│   ├── .env
+│   ├── package.json
+│   ├── package-lock.json
+│   └── server.js
+├── package.json
+└── package-lock.json
