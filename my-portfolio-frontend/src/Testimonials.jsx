@@ -1,9 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FaQuoteLeft, FaStar, FaHeart, FaRocket, FaMagic, FaTimes } from 'react-icons/fa';
 
+// Predefined avatars to avoid external API calls
+const predefinedAvatars = {
+  men: Array.from({ length: 20 }, (_, i) => `https://randomuser.me/api/portraits/men/${i + 1}.jpg`),
+  women: Array.from({ length: 20 }, (_, i) => `https://randomuser.me/api/portraits/women/${i + 1}.jpg`)
+};
+
+// Sample testimonials for fallback
+const sampleTestimonials = [
+  {
+    _id: 'sample1',
+    name: 'Sarah Johnson',
+    position: 'CEO at TechSavilions Inc.',
+    message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
+    rating: 5,
+    avatar: predefinedAvatars.women[10],
+    approved: true
+  },
+  {
+    _id: 'sample2',
+    name: 'Michael Chen',
+    position: 'Lead Developer at FinTech Solutions',
+    message: 'Working with Cyrus was a game-changer for our project. His React expertise and attention to detail elevated our application to the next level.',
+    rating: 5,
+    avatar: predefinedAvatars.men[5],
+    approved: true
+  }
+];
+
 function Testimonials() {
-  const [testimonials, setTestimonials] = useState([]);
+  const [testimonials, setTestimonials] = useState(sampleTestimonials);
   const [formData, setFormData] = useState({
     name: '',
     position: '',
@@ -15,18 +43,25 @@ function Testimonials() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    fetchTestimonials();
-  }, []);
-
-  const fetchTestimonials = async () => {
+  // Memoize the fetch function
+  const fetchTestimonials = useCallback(async () => {
     try {
-      const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`);
+      // Set a timeout for the API call
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
+      const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (!res.ok) throw new Error('Failed to fetch testimonials');
       
       const data = await res.json();
       const approvedTestimonials = data.filter(testimonial => testimonial.approved);
       
+      // Use predefined avatars instead of generating random ones
       const testimonialsWithAvatars = approvedTestimonials.map((testimonial, index) => {
         const firstName = testimonial.name.split(' ')[0].toLowerCase();
         const isLikelyFemale = firstName.endsWith('a') || 
@@ -35,11 +70,12 @@ function Testimonials() {
                               ['mary', 'sarah', 'lisa', 'anna', 'emma'].includes(firstName);
         
         const gender = isLikelyFemale ? 'women' : 'men';
-        const avatarId = Math.floor(Math.random() * 50) + 1;
+        // Use index to select from predefined avatars (consistent for each testimonial)
+        const avatarIndex = index % 20;
         
         return {
           ...testimonial,
-          avatar: testimonial.avatar || `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`,
+          avatar: testimonial.avatar || predefinedAvatars[gender][avatarIndex],
           rating: testimonial.rating || 5
         };
       });
@@ -48,21 +84,21 @@ function Testimonials() {
       
     } catch (error) {
       console.error("Error fetching testimonials:", error);
-      setTestimonials([
-        {
-          _id: 'sample1',
-          name: 'Sarah Johnson',
-          position: 'CEO at TechSavilions Inc.',
-          message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
-          rating: 5,
-          avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-          approved: true
-        }
-      ]);
+      // Use sample testimonials immediately instead of waiting for the fetch to fail
+      setTestimonials(sampleTestimonials);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Show sample testimonials immediately
+    setTestimonials(sampleTestimonials);
+    setIsLoading(false);
+    
+    // Then try to fetch real ones in the background
+    fetchTestimonials();
+  }, [fetchTestimonials]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,6 +134,9 @@ function Testimonials() {
       setIsSubmitting(false);
     }
   };
+
+  // Reduce the number of floating elements
+  const floatingElementsCount = 6;
 
   if (isLoading) {
     return (
@@ -211,7 +250,7 @@ function Testimonials() {
           backgroundImage: "url('/images/testimonials-bg.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundAttachment: "fixed"
+          // Remove fixed attachment for better performance
         }} 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
@@ -229,8 +268,8 @@ function Testimonials() {
         {/* Additional gradient overlay for aesthetics */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-cyan-900/20" />
 
-        {/* Floating Elements */}
-        {[...Array(12)].map((_, i) => (
+        {/* Reduced number of floating elements */}
+        {[...Array(floatingElementsCount)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute text-cyan-400/20 text-4xl"
@@ -294,7 +333,8 @@ function Testimonials() {
                 initial={{ opacity: 0, y: 60, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.2 + index * 0.15, duration: 0.7 }}
-                whileHover={{ y: -12, scale: 1.02, rotate: index % 2 ? -0.5 : 0.5 }}
+                whileHover={{ y: -12, scale: 1.02 }}
+                // Remove rotation on hover for better performance
               >
                 {/* Glow effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -314,7 +354,7 @@ function Testimonials() {
                   <FaQuoteLeft className="text-cyan-400/40 text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300" />
                   
                   {/* Testimonial Message */}
-                  <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.2 }}>
+                  <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light">
                     "{testimonial.message}"
                   </motion.p>
                   
@@ -324,7 +364,9 @@ function Testimonials() {
                       src={testimonial.avatar}
                       alt={testimonial.name}
                       className="w-16 h-16 rounded-full object-cover border-3 border-cyan-400/50 shadow-lg mr-4 group-hover:border-cyan-400 transition-all duration-300"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileHover={{ scale: 1.1 }}
+                      // Remove rotation for better performance
+                      loading="lazy" // Add lazy loading for images
                     />
                     <div>
                       <motion.h4 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
