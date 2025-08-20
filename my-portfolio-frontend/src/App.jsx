@@ -7,18 +7,14 @@ import Skills from './Skills';
 import Contact from './Contact';
 import Testimonials from './Testimonials';
 import Navbar from './Navbar';
-import ScrollToTop from './components/ScrollToTop'; // Make sure this file exists
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden">
-      {/* Scroll-to-top component - must be placed here */}
+    // REMOVED overflow-x-hidden from this div - this was causing the double scrollbar
+    <div className="min-h-screen w-full">
       <ScrollToTop />
-      
-      {/* Your navigation bar */}
       <Navbar />
-
-      {/* Main content area */}
       <main className="pt-20">
         <Routes>
           <Route path="/" element={<Home />} />

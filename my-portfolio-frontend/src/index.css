@@ -25,3 +25,36 @@ html {
 html {
   scroll-behavior: smooth;
 }
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent zoom on focus for better touch experience */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Better scrolling for modal on mobile */
+.modal-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Additional improvements for mobile */
+@media (max-width: 768px) {
+  /* Improve touch targets for project cards */
+  .project-card {
+    touch-action: manipulation;
+  }
+  
+  /* Prevent accidental background scrolling when modal is open */
+  body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}

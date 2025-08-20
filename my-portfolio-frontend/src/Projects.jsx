@@ -84,6 +84,20 @@ const projects = [
 ];
 
 const ProjectModal = ({ project, onClose, origin }) => {
+  // Prevent background scrolling when modal is open
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <motion.div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -91,37 +105,33 @@ const ProjectModal = ({ project, onClose, origin }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
+      onClick={handleOverlayClick}
     >
       {/* Overlay with subtle blur */}
       <motion.div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       />
       
-      {/* Modal content */}
+      {/* Modal content - Simplified animation for mobile */}
       <motion.div
         className="relative z-10 max-w-4xl w-full max-h-[90vh] bg-gray-800/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-700 overflow-hidden"
-        style={{ originX: 0.5, originY: 0.5 }}
         initial={{ 
           scale: 0.95,
           opacity: 0,
-          x: origin.x - window.innerWidth/2,
-          y: origin.y - window.innerHeight/2
+          y: 20 // Simplified animation for mobile compatibility
         }}
         animate={{ 
           scale: 1,
           opacity: 1,
-          x: 0,
           y: 0
         }}
         exit={{ 
           scale: 0.95,
           opacity: 0,
-          x: origin.x - window.innerWidth/2,
-          y: origin.y - window.innerHeight/2
+          y: 20
         }}
         transition={{ 
           type: "spring", 
@@ -188,10 +198,14 @@ const ProjectModal = ({ project, onClose, origin }) => {
               <Link
                 to="/contact"
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center transition-colors"
+                onClick={(e) => e.stopPropagation()} // Prevent overlay close
               >
                 Request Similar Project
               </Link>
-              <button className="px-6 py-2 border border-blue-400 text-blue-300 hover:bg-gray-700/50 rounded-lg transition-colors">
+              <button 
+                className="px-6 py-2 border border-blue-400 text-blue-300 hover:bg-gray-700/50 rounded-lg transition-colors"
+                onClick={(e) => e.stopPropagation()} // Prevent overlay close
+              >
                 View Technical Details
               </button>
             </div>
@@ -206,14 +220,28 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [clickOrigin, setClickOrigin] = useState({ x: 0, y: 0 });
 
+
   const handleProjectClick = (project, e) => {
+  // Prevent default to avoid any touch issues
+  e.preventDefault();
+  
+  // For mobile, we don't need the complex origin calculation
+  // Just use a simple center position
+  setClickOrigin({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  });
+  setSelectedProject(project);
+};
+
+  /*const handleProjectClick = (project, e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setClickOrigin({
       x: rect.left + rect.width/2,
       y: rect.top + rect.height/2
     });
     setSelectedProject(project);
-  };
+  };*/
 
   return (
     <motion.section

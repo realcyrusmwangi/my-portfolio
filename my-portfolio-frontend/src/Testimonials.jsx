@@ -2,6 +2,21 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FaQuoteLeft, FaStar, FaHeart, FaRocket, FaMagic, FaTimes } from 'react-icons/fa';
 
+// Function to generate initials-based avatars
+const getInitialsAvatar = (name, colors = ['#3B82F6', '#10B981', '#6366F1', '#EC4899', '#F59E0B']) => {
+  const initials = name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+  
+  const colorIndex = name.length % colors.length;
+  const bgColor = colors[colorIndex];
+  
+  return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${bgColor}" rx="50"/><text x="50" y="60" font-family="Arial" font-size="40" fill="white" text-anchor="middle" dominant-baseline="middle">${initials}</text></svg>`;
+};
+
 function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
   const [formData, setFormData] = useState({
