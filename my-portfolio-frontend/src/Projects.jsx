@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -83,66 +83,56 @@ const projects = [
   }
 ];
 
-const ProjectModal = ({ project, onClose, origin }) => {
+const ProjectModal = ({ project, onClose }) => {
+  const modalRef = useRef(null);
+
   // Prevent background scrolling when modal is open
-  React.useEffect(() => {
+  useEffect(() => {
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
     return () => {
       document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
     };
   }, []);
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [onClose]);
 
   return (
     <motion.div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      onClick={handleOverlayClick}
     >
-      {/* Overlay with subtle blur */}
       <motion.div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-      
-      {/* Modal content - Simplified animation for mobile */}
-      <motion.div
-        className="relative z-10 max-w-4xl w-full max-h-[90vh] bg-gray-800/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-700 overflow-hidden"
-        initial={{ 
-          scale: 0.95,
-          opacity: 0,
-          y: 20 // Simplified animation for mobile compatibility
-        }}
-        animate={{ 
-          scale: 1,
-          opacity: 1,
-          y: 0
-        }}
-        exit={{ 
-          scale: 0.95,
-          opacity: 0,
-          y: 20
-        }}
-        transition={{ 
-          type: "spring", 
-          damping: 25, 
-          stiffness: 300,
-          bounce: 0.2
-        }}
+        ref={modalRef}
+        className="relative bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ type: "spring", damping: 20, stiffness: 300 }}
       >
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-gray-700/80 hover:bg-gray-600 text-white/80 hover:text-white transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-700/80 hover:bg-gray-600 text-white transition-colors"
           aria-label="Close"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,18 +140,18 @@ const ProjectModal = ({ project, onClose, origin }) => {
           </svg>
         </button>
         
-        <div className="flex flex-col lg:flex-row h-full">
+        <div className="flex flex-col lg:flex-row">
           {/* Project Image */}
-          <div className="lg:w-1/2 h-64 lg:h-auto">
+          <div className="lg:w-1/2">
             <img
               src={project.image}
               alt={project.title}
-              className="w-full h-full object-cover"
+              className="w-full h-64 lg:h-full object-cover"
             />
           </div>
           
           {/* Project Details */}
-          <div className="lg:w-1/2 p-6 overflow-y-auto">
+          <div className="lg:w-1/2 p-6">
             <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4">{project.title}</h2>
             
             <div className="space-y-6">
@@ -197,15 +187,11 @@ const ProjectModal = ({ project, onClose, origin }) => {
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link
                 to="/contact"
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center transition-colors"
-                onClick={(e) => e.stopPropagation()} // Prevent overlay close
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center transition-colors"
               >
                 Request Similar Project
               </Link>
-              <button 
-                className="px-6 py-2 border border-blue-400 text-blue-300 hover:bg-gray-700/50 rounded-lg transition-colors"
-                onClick={(e) => e.stopPropagation()} // Prevent overlay close
-              >
+              <button className="px-6 py-3 border border-blue-400 text-blue-300 hover:bg-gray-700/50 rounded-lg transition-colors">
                 View Technical Details
               </button>
             </div>
@@ -218,35 +204,34 @@ const ProjectModal = ({ project, onClose, origin }) => {
 
 const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
-  const [clickOrigin, setClickOrigin] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   const handleProjectClick = (project, e) => {
-  // Prevent default to avoid any touch issues
-  e.preventDefault();
-  
-  // For mobile, we don't need the complex origin calculation
-  // Just use a simple center position
-  setClickOrigin({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  });
-  setSelectedProject(project);
-};
-
-  /*const handleProjectClick = (project, e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setClickOrigin({
-      x: rect.left + rect.width/2,
-      y: rect.top + rect.height/2
-    });
+    // Prevent default for touch devices
+    if (e.type === 'touchstart') {
+      e.preventDefault();
+    }
     setSelectedProject(project);
-  };*/
+  };
 
   return (
     <motion.section
       id="projects"
-      className="min-h-screen py-16 px-6 text-white relative overflow-hidden"
+      className="min-h-screen py-16 px-4 sm:px-6 text-white relative overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -289,13 +274,13 @@ const Projects = () => {
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
           <motion.h2
-            className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-200"
+            className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-200"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -303,7 +288,7 @@ const Projects = () => {
             My <span className="text-white">Projects</span>
           </motion.h2>
           <motion.p
-            className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-blue-100 max-w-3xl mx-auto px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
@@ -314,7 +299,7 @@ const Projects = () => {
 
         {/* Projects Grid */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9, duration: 0.6 }}
@@ -326,7 +311,7 @@ const Projects = () => {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
-              whileHover={{ y: -10 }}
+              whileHover={{ y: isMobile ? 0 : -10 }}
             >
               {/* Project Image */}
               <div className="h-48 overflow-hidden">
@@ -339,16 +324,16 @@ const Projects = () => {
               </div>
 
               {/* Project Content */}
-              <div className="flex-1 p-6 bg-gradient-to-b from-gray-800/90 to-gray-900/90 flex flex-col">
+              <div className="flex-1 p-4 sm:p-6 bg-gradient-to-b from-gray-800/90 to-gray-900/90 flex flex-col">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
                     {project.title}
                   </h3>
                   <p className="text-blue-100 text-sm mb-4 line-clamp-3">
                     {project.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map((tag, i) => (
+                    {project.tags.slice(0, 3).map((tag, i) => (
                       <span
                         key={i}
                         className="px-2 py-1 bg-blue-900/50 text-blue-200 text-xs rounded-full backdrop-blur-sm"
@@ -367,7 +352,9 @@ const Projects = () => {
                 >
                   <button
                     onClick={(e) => handleProjectClick(project, e)}
-                    className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 transform group-hover:scale-[1.02]"
+                    onTouchStart={(e) => handleProjectClick(project, e)}
+                    className="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 transform group-hover:scale-[1.02] text-sm sm:text-base"
+                    style={{ minHeight: '44px' }} // Minimum touch target size for mobile
                   >
                     View Details
                     <svg
@@ -392,21 +379,22 @@ const Projects = () => {
 
         {/* CTA Section */}
         <motion.div
-          className="mt-16 text-center"
+          className="mt-12 sm:mt-16 text-center px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.6 }}
         >
-          <h3 className="text-2xl md:text-3xl font-semibold text-white mb-6">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white mb-6">
             Ready to start your next project?
           </h3>
           <Link
             to="/contact"
-            className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="inline-flex items-center px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
+            style={{ minHeight: '44px' }} // Minimum touch target size for mobile
           >
             Get In Touch
             <svg
-              className="w-5 h-5 ml-2"
+              className="w-4 h-4 sm:w-5 sm:h-5 ml-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -428,7 +416,6 @@ const Projects = () => {
           <ProjectModal 
             project={selectedProject} 
             onClose={() => setSelectedProject(null)}
-            origin={clickOrigin}
           />
         )}
       </AnimatePresence>
