@@ -40,61 +40,106 @@ function Testimonials() {
   }, []);
 
   const fetchTestimonials = useCallback(async () => {
-    try {
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+  try {
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) throw new Error('Failed to fetch testimonials');
+    
+    const data = await res.json();
+    const approvedTestimonials = data.filter(testimonial => testimonial.approved);
+    
+    const testimonialsWithAvatars = approvedTestimonials.map((testimonial, index) => {
+      const firstName = testimonial.name.split(' ')[0].toLowerCase();
+      const isLikelyFemale = firstName.endsWith('a') || 
+                            firstName.endsWith('e') || 
+                            firstName.endsWith('i') || 
+                            ['mary', 'sarah', 'lisa', 'anna', 'emma'].includes(firstName);
       
-      const res = await fetch(`https://portfolio-backend-3zx5.onrender.com/api/testimonials`, {
-        signal: controller.signal
-      });
+      const gender = isLikelyFemale ? 'women' : 'men';
+      const avatarId = Math.floor(Math.random() * 50) + 1;
       
-      clearTimeout(timeoutId);
-      
-      if (!res.ok) throw new Error('Failed to fetch testimonials');
-      
-      const data = await res.json();
-      const approvedTestimonials = data.filter(testimonial => testimonial.approved);
-      
-      const testimonialsWithAvatars = approvedTestimonials.map((testimonial, index) => {
-        const firstName = testimonial.name.split(' ')[0].toLowerCase();
-        const isLikelyFemale = firstName.endsWith('a') || 
-                              firstName.endsWith('e') || 
-                              firstName.endsWith('i') || 
-                              ['mary', 'sarah', 'lisa', 'anna', 'emma'].includes(firstName);
-        
-        const gender = isLikelyFemale ? 'women' : 'men';
-        const avatarId = Math.floor(Math.random() * 50) + 1;
-        
-        return {
-          ...testimonial,
-          avatar: testimonial.avatar || `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`,
-          rating: testimonial.rating || 5
-        };
-      });
+      return {
+        ...testimonial,
+        avatar: testimonial.avatar || `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`,
+        rating: testimonial.rating || 5
+      };
+    });
 
-      setTestimonials(testimonialsWithAvatars);
-      
-    } catch (error) {
-      console.error("Error fetching testimonials:", error);
-      // Only use sample data if there are no testimonials at all
-      if (testimonials.length === 0) {
-        setTestimonials([
-          {
-            _id: 'sample1',
-            name: 'Sarah Johnson',
-            position: 'CEO at TechSavilions Inc.',
-            message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
-            rating: 5,
-            avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-            approved: true
-          }
-        ]);
-      }
-    } finally {
-      setIsLoading(false);
+    setTestimonials(testimonialsWithAvatars);
+    
+  } catch (error) {
+    console.error("Error fetching testimonials:", error);
+    // Only use sample data if there are no testimonials at all
+    if (testimonials.length === 0) {
+      setTestimonials([
+        {
+          _id: 'sample1',
+          name: 'Sarah Johnson',
+          position: 'CEO at TechSavilions Inc.',
+          message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+          approved: true
+        },
+        {
+          _id: 'sample2',
+          name: 'Michael Chen',
+          position: 'CTO at InnovateTech',
+          message: 'Working with Cyrus was a game-changer for our platform. His backend optimizations reduced our server costs by 40% while improving response times.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+          approved: true
+        },
+        {
+          _id: 'sample3',
+          name: 'Emily Rodriguez',
+          position: 'Product Manager at DataFlow',
+          message: 'Cyrus delivered a complex data visualization dashboard ahead of schedule. His attention to detail and communication throughout the project were exceptional.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/women/28.jpg',
+          approved: true
+        },
+        {
+          _id: 'sample4',
+          name: 'David Kim',
+          position: 'Lead Developer at FinTech Solutions',
+          message: 'I\'ve collaborated with Cyrus on multiple projects and his problem-solving skills are outstanding. He consistently delivers clean, maintainable code.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
+          approved: true
+        },
+        {
+          _id: 'sample5',
+          name: 'Priya Sharma',
+          position: 'UX Director at AppVantage',
+          message: 'Cyrus has an exceptional ability to translate design concepts into functional interfaces. His frontend work is both beautiful and highly performant.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
+          approved: true
+        },
+        {
+          _id: 'sample6',
+          name: 'James Wilson',
+          position: 'Startup Founder',
+          message: 'Cyrus helped us build our MVP from scratch. His full-stack expertise and business understanding were invaluable in creating a product that investors loved.',
+          rating: 5,
+          avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
+          approved: true
+        }
+      ]);
     }
-  }, [testimonials.length]);
+  } finally {
+    setIsLoading(false);
+  }
+}, [testimonials.length]);
 
   useEffect(() => {
     // Preload avatar images early
