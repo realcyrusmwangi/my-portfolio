@@ -88,16 +88,15 @@ const ProjectModal = ({ project, onClose }) => {
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
     document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
     
     return () => {
-      document.body.style.overflow = 'unset';
-      document.documentElement.style.overflow = 'unset';
+      document.body.style.overflow = originalStyle;
     };
   }, []);
 
-  // Close modal when clicking outside
+  // Close modal when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -105,23 +104,25 @@ const ProjectModal = ({ project, onClose }) => {
       }
     };
 
+    const handleEscape = (event) => {
+      if (event.keyCode === 27) {
+        onClose();
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, [onClose]);
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <motion.div
         ref={modalRef}
         className="relative bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden w-full max-w-4xl max-h-[90vh] overflow-y-auto"
@@ -141,7 +142,6 @@ const ProjectModal = ({ project, onClose }) => {
         </button>
         
         <div className="flex flex-col lg:flex-row">
-          {/* Project Image */}
           <div className="lg:w-1/2">
             <img
               src={project.image}
@@ -150,7 +150,6 @@ const ProjectModal = ({ project, onClose }) => {
             />
           </div>
           
-          {/* Project Details */}
           <div className="lg:w-1/2 p-6">
             <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4">{project.title}</h2>
             
@@ -198,217 +197,264 @@ const ProjectModal = ({ project, onClose }) => {
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
 const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isContentVisible, setIsContentVisible] = useState(true);
+  const pageRef = useRef(null);
 
-  // Check if device is mobile
+  // Check for overlay issues on mobile
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    // Force visible content after a short delay to prevent any overlay issues
+    const timer = setTimeout(() => {
+      setIsContentVisible(true);
+      
+      // Additional check for any elements that might be covering the content
+      const checkForOverlays = () => {
+        // Look for any elements that might be covering the page
+        const allElements = document.querySelectorAll('*');
+        const coveringElements = [];
+        
+        allElements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const styles = window.getComputedStyle(el);
+          
+          // Check if element is covering a significant portion of the screen
+          if (
+            rect.width > window.innerWidth * 0.8 && 
+            rect.height > window.innerHeight * 0.8 &&
+            styles.position !== 'static' &&
+            styles.zIndex > 1
+          ) {
+            coveringElements.push(el);
+          }
+        });
+        
+        // If we found covering elements, adjust their z-index
+        if (coveringElements.length > 0) {
+          coveringElements.forEach(el => {
+            if (!el.classList.contains('modal-overlay')) {
+              el.style.zIndex = '1';
+            }
+          });
+        }
+      };
+      
+      checkForOverlays();
+    }, 100);
     
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   const handleProjectClick = (project, e) => {
-    // Prevent default for touch devices
-    if (e.type === 'touchstart') {
-      e.preventDefault();
-    }
+    e.preventDefault();
+    e.stopPropagation();
     setSelectedProject(project);
   };
 
   return (
-    <motion.section
-      id="projects"
-      className="min-h-screen py-16 px-4 sm:px-6 text-white relative overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      style={{
-        backgroundImage: "url('/images/projects-bg.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed"
-      }}
-    >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 to-blue-900/80"></div>
-
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden opacity-20">
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-blue-400"
-            style={{
-              width: Math.random() * 300 + 100,
-              height: Math.random() * 300 + 100,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 100 - 50],
-              y: [0, Math.random() * 100 - 50],
-              opacity: [0.1, 0.3, 0.1],
-            }}
-            transition={{
-              duration: Math.random() * 20 + 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-12 sm:mb-16"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <motion.h2
-            className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-200"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            My <span className="text-white">Projects</span>
-          </motion.h2>
-          <motion.p
-            className="text-base sm:text-lg md:text-xl text-blue-100 max-w-3xl mx-auto px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-          >
-            Explore my portfolio of IT solutions that drive business transformation and operational excellence.
-          </motion.p>
-        </motion.div>
-
-        {/* Projects Grid */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-        >
-          {projects.map((project, index) => (
-            <motion.div
-              key={index}
-              className="group relative overflow-hidden rounded-2xl shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 h-96 flex flex-col"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
-              whileHover={{ y: isMobile ? 0 : -10 }}
+    <div ref={pageRef} className="relative min-h-screen">
+      {/* Debug overlay - only visible if there's an issue */}
+      {!isContentVisible && (
+        <div className="fixed inset-0 bg-red-500/20 z-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded-lg">
+            <p className="text-black">Content hidden by overlay</p>
+            <button 
+              onClick={() => setIsContentVisible(true)}
+              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
             >
-              {/* Project Image */}
-              <div className="h-48 overflow-hidden">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-              </div>
+              Fix Overlay
+            </button>
+          </div>
+        </div>
+      )}
+      
+      <motion.section
+        id="projects"
+        className="min-h-screen py-16 px-4 sm:px-6 text-white relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        style={{
+          backgroundImage: "url('/images/projects-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          display: isContentVisible ? 'block' : 'none'
+        }}
+      >
+        {/* Dark overlay with reduced opacity for better visibility */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-gray-900/70 to-blue-900/60"
+          style={{ zIndex: 1 }}
+        ></div>
 
-              {/* Project Content */}
-              <div className="flex-1 p-4 sm:p-6 bg-gradient-to-b from-gray-800/90 to-gray-900/90 flex flex-col">
-                <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-blue-100 text-sm mb-4 line-clamp-3">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.slice(0, 3).map((tag, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-1 bg-blue-900/50 text-blue-200 text-xs rounded-full backdrop-blur-sm"
+        {/* Animated Background Elements with lower z-index */}
+        <div className="absolute inset-0 overflow-hidden opacity-20" style={{ zIndex: 2 }}>
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-blue-400"
+              style={{
+                width: Math.random() * 300 + 100,
+                height: Math.random() * 300 + 100,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                zIndex: 2
+              }}
+              animate={{
+                x: [0, Math.random() * 100 - 50],
+                y: [0, Math.random() * 100 - 50],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: Math.random() * 20 + 10,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto" style={{ zIndex: 10 }}>
+          {/* Header */}
+          <motion.div
+            className="text-center mb-12 sm:mb-16"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            <motion.h2
+              className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-200"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              My <span className="text-white">Projects</span>
+            </motion.h2>
+            <motion.p
+              className="text-base sm:text-lg md:text-xl text-blue-100 max-w-3xl mx-auto px-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
+            >
+              Explore my portfolio of IT solutions that drive business transformation and operational excellence.
+            </motion.p>
+          </motion.div>
+
+          {/* Projects Grid */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.6 }}
+            style={{ zIndex: 10, position: 'relative' }}
+          >
+            {projects.map((project, index) => (
+              <motion.div
+                key={index}
+                className="group relative overflow-hidden rounded-2xl shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 h-96 flex flex-col"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
+                whileHover={{ y: -10 }}
+                style={{ zIndex: 10 }}
+              >
+                {/* Project Image */}
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                </div>
+
+                {/* Project Content */}
+                <div className="flex-1 p-4 sm:p-6 bg-gradient-to-b from-gray-800/90 to-gray-900/90 flex flex-col">
+                  <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="text-blue-100 text-sm mb-4 line-clamp-3">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.tags.slice(0, 3).map((tag, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-1 bg-blue-900/50 text-blue-200 text-xs rounded-full backdrop-blur-sm"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-auto">
+                    <button
+                      onClick={(e) => handleProjectClick(project, e)}
+                      onTouchStart={(e) => handleProjectClick(project, e)}
+                      className="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 transform group-hover:scale-[1.02] text-sm sm:text-base touch-manipulation"
+                      style={{ minHeight: '44px', touchAction: 'manipulation' }}
+                    >
+                      View Details
+                      <svg
+                        className="w-4 h-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        {tag}
-                      </span>
-                    ))}
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-                
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.2 + index * 0.1, duration: 0.6 }}
-                  className="mt-auto"
-                >
-                  <button
-                    onClick={(e) => handleProjectClick(project, e)}
-                    onTouchStart={(e) => handleProjectClick(project, e)}
-                    className="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 transform group-hover:scale-[1.02] text-sm sm:text-base"
-                    style={{ minHeight: '44px' }} // Minimum touch target size for mobile
-                  >
-                    View Details
-                    <svg
-                      className="w-4 h-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                      />
-                    </svg>
-                  </button>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
 
-        {/* CTA Section */}
-        <motion.div
-          className="mt-12 sm:mt-16 text-center px-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.6 }}
-        >
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white mb-6">
-            Ready to start your next project?
-          </h3>
-          <Link
-            to="/contact"
-            className="inline-flex items-center px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
-            style={{ minHeight: '44px' }} // Minimum touch target size for mobile
+          {/* CTA Section */}
+          <motion.div
+            className="mt-12 sm:mt-16 text-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
           >
-            Get In Touch
-            <svg
-              className="w-4 h-4 sm:w-5 sm:h-5 ml-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white mb-6">
+              Ready to start your next project?
+            </h3>
+            <Link
+              to="/contact"
+              className="inline-flex items-center px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
+              style={{ minHeight: '44px' }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              />
-            </svg>
-          </Link>
-        </motion.div>
-      </div>
+              Get In Touch
+              <svg
+                className="w-4 h-4 sm:w-5 sm:h-5 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                />
+              </svg>
+            </Link>
+          </motion.div>
+        </div>
+      </motion.section>
 
       {/* Project Modal */}
       <AnimatePresence>
@@ -419,7 +465,7 @@ const Projects = () => {
           />
         )}
       </AnimatePresence>
-    </motion.section>
+    </div>
   );
 };
 
