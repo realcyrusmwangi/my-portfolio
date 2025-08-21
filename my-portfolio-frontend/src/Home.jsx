@@ -85,7 +85,7 @@ const Home = () => {
             transition={{ duration: 0.8 }}
           >
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-200">
-              Cyrus Mwangi
+              Cyrus <span className="text-white">Mwangi</span>
             </span>
           </motion.h1>
 
@@ -96,18 +96,19 @@ const Home = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             whileHover={{ scale: 1.05 }}
           >
-            <span className="text-blue-300 font-medium">IT Solutions Architect</span>
+            <span className="text-blue-300 font-medium">Applications Support Engineer</span>
           </motion.div>
 
           <motion.p
-            className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            Transforming business operations through <span className="text-blue-300 font-medium">innovative technology solutions</span>, 
-            <span className="text-purple-300 font-medium"> precision system implementations</span>, and 
-            <span className="text-cyan-300 font-medium"> seamless technical support</span>.
+            Specializing in <span className="text-blue-300 font-medium">enterprise application support</span>, 
+            <span className="text-purple-300 font-medium"> database administration</span>, and 
+            <span className="text-cyan-300 font-medium"> system implementation</span> with 7+ years of experience 
+            delivering robust IT solutions.
           </motion.p>
         </div>
 

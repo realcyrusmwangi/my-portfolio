@@ -146,14 +146,24 @@ export default function About() {
           </motion.div>
 
           <div className="text-center lg:text-left">
-            <motion.h2 
+
+            <motion.h2
+            className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-200"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            About <span className="text-white">Me</span>
+          </motion.h2>
+
+            {/*<motion.h2 
               className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-4 text-white"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             >
               About <span className="text-blue-300">Me</span>
-            </motion.h2>
+            </motion.h2>*/}
 
             <motion.div
               className="inline-block px-4 py-2 bg-blue-600/20 rounded-full mb-6 border border-blue-400/30"
