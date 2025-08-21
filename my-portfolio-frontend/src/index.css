@@ -58,3 +58,23 @@ html {
     width: 100%;
   }
 }
+
+/* Ensure all interactive elements are touch-friendly */
+button, [role="button"], a {
+  touch-action: manipulation;
+}
+
+/* Prevent any unwanted overlays from blocking interactions */
+.absolute.inset-0 {
+  pointer-events: none;
+}
+
+.absolute.inset-0 > * {
+  pointer-events: auto;
+}
+
+/* Specific fix for project cards */
+.project-card button {
+  position: relative;
+  z-index: 100;
+}
