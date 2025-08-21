@@ -82,7 +82,7 @@ function Testimonials() {
       setTestimonials([
         {
           _id: 'sample1',
-          name: 'Sarah Johnson',
+          name: 'Sarah Njambi',
           position: 'CEO at TechSavilions Inc.',
           message: 'Cyrus transformed our legacy HR system with seamless Oracle integration. His technical expertise saved us months of development time.',
           rating: 5,
@@ -91,7 +91,7 @@ function Testimonials() {
         },
         {
           _id: 'sample2',
-          name: 'Michael Chen',
+          name: 'Michael Wambua',
           position: 'CTO at InnovateTech',
           message: 'Working with Cyrus was a game-changer for our platform. His backend optimizations reduced our server costs by 40% while improving response times.',
           rating: 5,
@@ -100,7 +100,7 @@ function Testimonials() {
         },
         {
           _id: 'sample3',
-          name: 'Emily Rodriguez',
+          name: 'Emily Chepgetich',
           position: 'Product Manager at DataFlow',
           message: 'Cyrus delivered a complex data visualization dashboard ahead of schedule. His attention to detail and communication throughout the project were exceptional.',
           rating: 5,
@@ -109,7 +109,7 @@ function Testimonials() {
         },
         {
           _id: 'sample4',
-          name: 'David Kim',
+          name: 'David Mwangi',
           position: 'Lead Developer at FinTech Solutions',
           message: 'I\'ve collaborated with Cyrus on multiple projects and his problem-solving skills are outstanding. He consistently delivers clean, maintainable code.',
           rating: 5,
