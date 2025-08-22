@@ -17,6 +17,33 @@ const getInitialsAvatar = (name, colors = ['#3B82F6', '#10B981', '#6366F1', '#EC
   return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${bgColor}" rx="50"/><text x="50" y="60" font-family="Arial" font-size="40" fill="white" text-anchor="middle" dominant-baseline="middle">${initials}</text></svg>`;
 };
 
+// Skeleton component for loading state
+const TestimonialSkeleton = () => (
+  <div className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 p-8 animate-pulse">
+    <div className="flex mb-6">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="w-5 h-5 bg-gray-600 rounded-full mr-1"></div>
+      ))}
+    </div>
+    
+    <div className="w-12 h-12 bg-gray-600 rounded-full mb-6"></div>
+    
+    <div className="space-y-3 mb-8">
+      <div className="h-4 bg-gray-600 rounded"></div>
+      <div className="h-4 bg-gray-600 rounded"></div>
+      <div className="h-4 bg-gray-600 rounded w-3/4"></div>
+    </div>
+    
+    <div className="flex items-center">
+      <div className="w-16 h-16 bg-gray-600 rounded-full mr-4"></div>
+      <div className="flex-1">
+        <div className="h-5 bg-gray-600 rounded mb-2 w-3/4"></div>
+        <div className="h-4 bg-gray-600 rounded w-1/2"></div>
+      </div>
+    </div>
+  </div>
+);
+
 function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
   const [formData, setFormData] = useState({
@@ -185,29 +212,6 @@ function Testimonials() {
       setIsSubmitting(false);
     }
   };
-
-  /*if (isLoading) {
-    return (
-      <motion.section className="min-h-screen flex items-center justify-center" 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }}>
-        <div className="text-white text-xl animate-pulse">✨ Loading testimonials...</div>
-      </motion.section>
-    );
-  }*/
-
-  if (isLoading) {
-  return (
-    <motion.section className="min-h-screen flex items-center justify-center" 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }}>
-      <div className="text-white text-lg animate-pulse flex flex-col items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mb-4"></div>
-        <div>Loading testimonials...</div>
-      </div>
-    </motion.section>
-  );
-}
 
   return (
     <>
@@ -389,57 +393,68 @@ function Testimonials() {
 
           {/* Testimonials Grid */}
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.8 }}>
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial._id}
-                className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 hover:border-cyan-400/30 transition-all duration-500 p-8"
-                initial={{ opacity: 0, y: 60, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 0.2 + index * 0.15, duration: 0.7 }}
-                whileHover={{ y: -12, scale: 1.02, rotate: index % 2 ? -0.5 : 0.5 }}
-              >
-                {/* Glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="relative z-10">
-                  {/* Rating Stars */}
-                  <div className="flex mb-6">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar 
-                        key={i}
-                        className={`text-xl ${i < testimonial.rating ? 'text-yellow-400 drop-shadow-sm' : 'text-gray-600'}`}
+            {isLoading ? (
+              <>
+                <TestimonialSkeleton />
+                <TestimonialSkeleton />
+                <TestimonialSkeleton />
+                <TestimonialSkeleton />
+                <TestimonialSkeleton />
+                <TestimonialSkeleton />
+              </>
+            ) : (
+              testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial._id}
+                  className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 hover:border-cyan-400/30 transition-all duration-500 p-8"
+                  initial={{ opacity: 0, y: 60, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.2 + index * 0.15, duration: 0.7 }}
+                  whileHover={{ y: -12, scale: 1.02, rotate: index % 2 ? -0.5 : 0.5 }}
+                >
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="relative z-10">
+                    {/* Rating Stars */}
+                    <div className="flex mb-6">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar 
+                          key={i}
+                          className={`text-xl ${i < testimonial.rating ? 'text-yellow-400 drop-shadow-sm' : 'text-gray-600'}`}
+                        />
+                      ))}
+                    </div>
+                    
+                    {/* Quote Icon */}
+                    <FaQuoteLeft className="text-cyan-400/40 text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300" />
+                    
+                    {/* Testimonial Message */}
+                    <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.2 }}>
+                      "{testimonial.message}"
+                    </motion.p>
+                    
+                    {/* Author Info */}
+                    <div className="flex items-center">
+                      <motion.img
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="w-16 h-16 rounded-full object-cover border-3 border-cyan-400/50 shadow-lg mr-4 group-hover:border-cyan-400 transition-all duration-300"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
                       />
-                    ))}
-                  </div>
-                  
-                  {/* Quote Icon */}
-                  <FaQuoteLeft className="text-cyan-400/40 text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300" />
-                  
-                  {/* Testimonial Message */}
-                  <motion.p className="text-blue-50 mb-8 italic text-lg leading-relaxed font-light" whileHover={{ color: '#ffffff' }} transition={{ duration: 0.2 }}>
-                    "{testimonial.message}"
-                  </motion.p>
-                  
-                  {/* Author Info */}
-                  <div className="flex items-center">
-                    <motion.img
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      className="w-16 h-16 rounded-full object-cover border-3 border-cyan-400/50 shadow-lg mr-4 group-hover:border-cyan-400 transition-all duration-300"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    />
-                    <div>
-                      <motion.h4 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
-                        {testimonial.name}
-                      </motion.h4>
-                      <motion.p className="text-cyan-200 text-sm font-medium group-hover:text-cyan-100 transition-colors duration-300">
-                        {testimonial.position}
-                      </motion.p>
+                      <div>
+                        <motion.h4 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
+                          {testimonial.name}
+                        </motion.h4>
+                        <motion.p className="text-cyan-200 text-sm font-medium group-hover:text-cyan-100 transition-colors duration-300">
+                          {testimonial.position}
+                        </motion.p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </motion.div>
 
           {/* Footer Note */}
